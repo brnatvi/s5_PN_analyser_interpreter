@@ -37,7 +37,7 @@ type cond = expr * comp * expr
 
 (** Instructions *)
 type instr =
-  | Set of name * expr
+  | Set of name * expr    (* := *)
   | Read of name
   | Print of expr
   | If of cond * block * block
@@ -47,8 +47,42 @@ and block = (position * instr) list
 (** Un programme Polish est un bloc d'instructions *)
 type program = block
 
+type sign = Neg | Zero | Pos | Error
 
-(***********************************************************************)
+module NameTable = Map.Make(String)
+
+(********************** Auxiliary functions *****************************)
+
+(* read code from file and store it to list *)
+let read_file (filename:string) : ('a list) =  
+  let chan = Stdlib.open_in filename in
+  let try_read () =
+    try Some (input_line chan) with End_of_file -> None in
+  let rec aux acc = 
+    match try_read () with
+    | Some a -> aux (a :: acc)
+    | None -> close_in chan;
+    List.rev acc in aux []
+    
+(***************************  Prints  ***********************************)
+
+(* print list *)
+let print_list l =
+  let rec print_elements = function
+    | [] -> ()
+    | h::tail -> print_string h;
+    print_string ";";
+    print_elements tail
+  in
+  print_string "[";
+  print_elements l;
+  print_string "]";
+  print_string "\n"
+
+let print_table (t : 'a NameTable.t) : unit =
+  failwith "TODO" 
+
+(************************  Main functions  ******************************)
 
 let read_polish (filename:string) : program = failwith "TODO"
 
@@ -57,8 +91,11 @@ let print_polish (p:program) : unit = failwith "TODO"
 let eval_polish (p:program) : unit = failwith "TODO"
 
 let usage () =
-  print_string "Polish : analyse statique d'un mini-langage\n";
-  print_string "usage: à documenter (TODO)\n"
+  print_list (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
+  print_list (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p")
+  
+  (*print_string "Polish : analyse statique d'un mini-langage\n";
+  print_string "usage: à documenter (TODO)\n"*)
 
 let main () =
   match Sys.argv with
