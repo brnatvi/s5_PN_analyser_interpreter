@@ -54,19 +54,19 @@ module NameTable = Map.Make(String)
 (********************** Auxiliary functions *****************************)
 
 (* read code from file and store it to list *)
-let read_file (filename:string) : ('a list) =  
+let read_file (filename:string) : ((int * 'a) list) =  
   let chan = Stdlib.open_in filename in
   let try_read () =
     try Some (input_line chan) with End_of_file -> None in
-  let rec aux acc = 
+  let rec aux i acc = 
     match try_read () with
-    | Some a -> aux (a :: acc)
+    | Some a -> aux (i+1) ((i,a) :: acc)
     | None -> close_in chan;
-    List.rev acc in aux []
+    List.rev acc in aux 0 []
     
 (***************************  Prints  ***********************************)
 
-(* print list *)
+(* print simple list *)
 let print_list l =
   let rec print_elements = function
     | [] -> ()
@@ -79,9 +79,19 @@ let print_list l =
   print_string "]";
   print_string "\n"
 
-let print_table (t : 'a NameTable.t) : unit =
-  failwith "TODO" 
-
+(* print list of tuples *)
+let print_list_tuples (t : (int * 'a) list) : unit =
+  let rec print_elements = function
+    | [] -> ()
+    | h::tail -> let (x,y) = h in
+      print_int x; print_string ":"; print_string y;
+    print_string "; ";
+    print_elements tail
+  in
+  print_string "[";
+  print_elements t;
+  print_string "]";
+  print_string "\n"
 (************************  Main functions  ******************************)
 
 let read_polish (filename:string) : program = failwith "TODO"
@@ -91,11 +101,10 @@ let print_polish (p:program) : unit = failwith "TODO"
 let eval_polish (p:program) : unit = failwith "TODO"
 
 let usage () =
-  print_list (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
-  print_list (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p")
-  
-  (*print_string "Polish : analyse statique d'un mini-langage\n";
-  print_string "usage: à documenter (TODO)\n"*)
+  print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
+  print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p");  
+  print_string "Polish : analyse statique d'un mini-langage\n";
+  print_string "usage: à documenter (TODO)\n"
 
 let main () =
   match Sys.argv with
