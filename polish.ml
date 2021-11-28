@@ -14,15 +14,6 @@ type position = int
 (** Nom de variable *)
 type name = string
 
-(** Les mots-clefs *)
-type keywords = 
-| READ    of string
-| IF      of string
-| ELSE    of string
-| PRINT   of string
-| COMMENT of string
-| WHILE   of string
-
 
 (** Opérateurs arithmétiques : + - * / % *)
 type op = Add | Sub | Mul | Div | Mod
@@ -47,6 +38,7 @@ type cond = expr * comp * expr
 
 (** Instructions *)
 type instr =
+  | NUL of int
   | Set of name * expr    (* := *)
   | Read of name
   | Print of expr
@@ -65,11 +57,37 @@ module NameSet   = Set.Make(String)
 
 (**********************  Syntax check up  *******************************)
 
-let check_variable (st : int * (string list)) : bool =  
-   failwith "TODO" 
- 
- let check_assignment (st : (int * string) list) : bool =  
-   failwith "TODO"
+let analize_expr (l : string list) : expr =
+  failwith "TODO"
+
+let analize_cond (l : string) : cond =
+  failwith "TODO"
+
+let get_variable (st : string ) : name =   
+  if ((st.[0] = '+') || (st.[0] = '-') || (st.[0] = '*') || (st.[0] = '/') || (st.[0] = '%')) then failwith "not a variable"
+  else st 
+
+let get_op (st : string) : op =
+  match st with
+  | "+" -> Add
+  | "-" -> Sub
+  | "*" -> Mul
+  | "/" -> Div
+  | "%" -> Mod
+  | _   -> failwith "not a operation"
+
+let get_comp (st : string) : comp =
+  match st with
+  | "="  -> Eq
+  | "<>" -> Ne
+  | "<"  -> Lt
+  | "<=" -> Le
+  | ">"  -> Gt
+  | ">=" -> Ge
+  |  _   -> failwith "not a operation of comparison"
+
+let check_assignment (st : string) : bool =  
+  (st.[0] = ':') && (st.[1] = '=')
 
 (********************** Auxiliary functions *****************************)
 
@@ -82,7 +100,7 @@ let read_file (filename:string) : ((int * string) list) =
     match try_read () with
     | Some a -> aux (i+1) ((i,a) :: acc)
     | None   -> close_in chan;
-    List.rev acc in aux 0 []
+    List.rev acc in aux 1 []
 
 (* count number of blancs (offset) in line (string), if it is odd - exception *)
 let count_offset st : int =                       (* may be dont need this function *)
@@ -93,21 +111,30 @@ let count_offset st : int =                       (* may be dont need this funct
     else failwith "block alignment failure"        (*TODO may be raise ?*)
   in aux st 0 0
 
-let parce_line (line : int * string) : int * string list =
+let parse_line (line : int * string) : int * string list =
   let (x, y) = line in  
   let pos = count_offset y in
   let splited = String.split_on_char ' ' y in 
   (pos, splited)
 
-let compose_program (l : (int * string) list) : program =  
-  failwith "TODO"
+let prog : block = List.init 0 (fun x -> (0, NUL 0)) 
+
+let compose_program (l : int * (string list)) : program =
+  (*let newProg = List.init 0 (fun x -> (0, NUL 0)) in
+  let (i, j) = l in
+  match j with
+  | [] -> newProg
+  | h::tail -> 
+        match h with                
+          | "READ"   -> *) failwith "TODO"
+  
 
 (* TMP *)
 let get_string (l : (int * string) list) i : string =  
   let el = List.nth l i in
   let (x,y) = el in y
-(***************************  Prints  ***********************************)
 
+(***************************  Prints  ***********************************)
 (* print simple list *)
 let print_list l =
   let rec print_elements = function
@@ -149,7 +176,7 @@ let print_list_tuples (t : (int * string) list) : unit =
 (************************  Main functions  ******************************)
 
 let read_polish (filename:string) : program = 
-  compose_program(read_file (filename))
+  failwith "TODO"
 
 let print_polish (p:program) : unit = failwith "TODO"
 
@@ -161,8 +188,9 @@ let usage () =
   print_string "\n";
   print_string("  WHILE * i i <= n");
   print_string "\n";
-  print_list_1(parce_line (2, "  WHILE * i i <= n"));
+  print_list_1(parse_line (2, "  WHILE * i i <= n"));
   print_string "\n"
+  
   (*print_string "Polish : analyse statique d'un mini-langage\n";
   print_string "usage: à documenter (TODO)\n"*)
 
