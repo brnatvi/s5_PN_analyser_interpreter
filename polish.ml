@@ -14,6 +14,16 @@ type position = int
 (** Nom de variable *)
 type name = string
 
+(** Les mots-clefs *)
+type keywords = 
+| READ    of string
+| IF      of string
+| ELSE    of string
+| PRINT   of string
+| COMMENT of string
+| WHILE   of string
+
+
 (** Opérateurs arithmétiques : + - * / % *)
 type op = Add | Sub | Mul | Div | Mod
 
@@ -51,19 +61,51 @@ type sign = Neg | Zero | Pos | Error
 
 module NameTable = Map.Make(String)
 
+module NameSet   = Set.Make(String)
+
+(**********************  Syntax check up  *******************************)
+
+let check_variable (st : int * (string list)) : bool =  
+   failwith "TODO" 
+ 
+ let check_assignment (st : (int * string) list) : bool =  
+   failwith "TODO"
+
 (********************** Auxiliary functions *****************************)
 
 (* read code from file and store it to list *)
-let read_file (filename:string) : ((int * 'a) list) =  
+let read_file (filename:string) : ((int * string) list) =  
   let chan = Stdlib.open_in filename in
   let try_read () =
     try Some (input_line chan) with End_of_file -> None in
   let rec aux i acc = 
     match try_read () with
     | Some a -> aux (i+1) ((i,a) :: acc)
-    | None -> close_in chan;
+    | None   -> close_in chan;
     List.rev acc in aux 0 []
-    
+
+(* count number of blancs (offset) in line (string), if it is odd - exception *)
+let count_offset st : int =                       (* may be dont need this function *)
+  let rec aux st i acc =
+    match st.[i] with
+    | ' ' -> aux st (i+1) (acc + 1)
+    | _   -> if (acc mod 2 = 0) then acc
+    else failwith "block alignment failure"        (*TODO may be raise ?*)
+  in aux st 0 0
+
+let parce_line (line : int * string) : int * string list =
+  let (x, y) = line in  
+  let pos = count_offset y in
+  let splited = String.split_on_char ' ' y in 
+  (pos, splited)
+
+let compose_program (l : (int * string) list) : program =  
+  failwith "TODO"
+
+(* TMP *)
+let get_string (l : (int * string) list) i : string =  
+  let el = List.nth l i in
+  let (x,y) = el in y
 (***************************  Prints  ***********************************)
 
 (* print simple list *)
@@ -76,25 +118,38 @@ let print_list l =
   in
   print_string "[";
   print_elements l;
+  print_string "]"
+  (*print_string "\n"*)
+
+(* TMP *)
+let print_list_1 (l : int * string list) : unit =
+  let (x,y) = l in
+  print_string "[";
+  print_int x;
+  print_string ":";
+  print_list y;
   print_string "]";
   print_string "\n"
 
 (* print list of tuples *)
-let print_list_tuples (t : (int * 'a) list) : unit =
+let print_list_tuples (t : (int * string) list) : unit =
   let rec print_elements = function
     | [] -> ()
     | h::tail -> let (x,y) = h in
       print_int x; print_string ":"; print_string y;
     print_string "; ";
+    print_string "\n";
     print_elements tail
   in
   print_string "[";
   print_elements t;
   print_string "]";
   print_string "\n"
+
 (************************  Main functions  ******************************)
 
-let read_polish (filename:string) : program = failwith "TODO"
+let read_polish (filename:string) : program = 
+  compose_program(read_file (filename))
 
 let print_polish (p:program) : unit = failwith "TODO"
 
@@ -103,8 +158,13 @@ let eval_polish (p:program) : unit = failwith "TODO"
 let usage () =
   print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
   print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p");  
-  print_string "Polish : analyse statique d'un mini-langage\n";
-  print_string "usage: à documenter (TODO)\n"
+  print_string "\n";
+  print_string("  WHILE * i i <= n");
+  print_string "\n";
+  print_list_1(parce_line (2, "  WHILE * i i <= n"));
+  print_string "\n"
+  (*print_string "Polish : analyse statique d'un mini-langage\n";
+  print_string "usage: à documenter (TODO)\n"*)
 
 let main () =
   match Sys.argv with
