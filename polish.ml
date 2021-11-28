@@ -93,7 +93,7 @@ let count_offset st : int =                       (* may be dont need this funct
     else failwith "block alignment failure"        (*TODO may be raise ?*)
   in aux st 0 0
 
-let parce_line (line : int * string) : int * string list =
+let parse_line (line : int * string) : int * string list =
   let (x, y) = line in  
   let pos = count_offset y in
   let splited = String.split_on_char ' ' y in 
