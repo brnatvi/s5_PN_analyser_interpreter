@@ -37,8 +37,7 @@ type comp =
 type cond = expr * comp * expr
 
 (** Instructions *)
-type instr =
-  | NUL of int
+type instr =  
   | Set of name * expr    (* := *)
   | Read of name
   | Print of expr
@@ -57,13 +56,16 @@ module NameSet   = Set.Make(String)
 
 (**********************  Syntax check up  *******************************)
 
-let analize_expr (l : string list) : expr =
+(*let analize_expr (l : string list) : expr =  
+  match List.length l with 
+  | 1 -> try Num (int_of_string h) with Var h
+  | _ -> 
+*)
+
+let analize_cond (l : string list) : cond =
   failwith "TODO"
 
-let analize_cond (l : string) : cond =
-  failwith "TODO"
-
-let get_variable (st : string ) : name =   
+let analize_variable (st : string) : name =
   if ((st.[0] = '+') || (st.[0] = '-') || (st.[0] = '*') || (st.[0] = '/') || (st.[0] = '%')) then failwith "not a variable"
   else st 
 
@@ -111,23 +113,35 @@ let count_offset st : int =                       (* may be dont need this funct
     else failwith "block alignment failure"        (*TODO may be raise ?*)
   in aux st 0 0
 
-let parse_line (line : int * string) : int * string list =
-  let (x, y) = line in  
-  let pos = count_offset y in
-  let splited = String.split_on_char ' ' y in 
-  (pos, splited)
+let splite_line (line : int * string) : string list =
+  let (x, y) = line in    
+  let splited = String.split_on_char ' ' y in splited
 
-let prog : block = List.init 0 (fun x -> (0, NUL 0)) 
+let split_all_code (code : (int * string) list) : (int * (string list)) list =
+  let rec aux acc code =
+    match code with
+    | [] -> acc
+    | h::tail -> let (x, y) = h in
+     aux ((x, splite_line h)::acc) tail
+  in aux [] (List.rev code)
 
-let compose_program (l : int * (string list)) : program =
-  (*let newProg = List.init 0 (fun x -> (0, NUL 0)) in
-  let (i, j) = l in
-  match j with
-  | [] -> newProg
-  | h::tail -> 
-        match h with                
-          | "READ"   -> *) failwith "TODO"
-  
+let compose_program (l : (int * (string list)) list) : program =   
+(*let rec aux acc p l =       (* inspect lines of code *)
+  match l with  
+  | [] -> acc
+  | h::tail -> let (x, y) = h in    (* inspect words of line *)
+    match y with
+    | "" -> aux acc (p+1) tail 
+    | "READ" -> (*let e = ..... in
+     let e = Print e in
+     let acc = (p,i)::acc in aux acc (p+1) 
+    analize_variable tail*) failwith "TODO" 
+    | "PRINT" -> failwith "TODO" 
+    | "IF" -> failwith "TODO"
+    | "WHILE" -> failwith "TODO"
+    | "COMMENT" -> failwith "TODO"
+    | _ -> failwith "TODO"    
+  in aux [] 1 l *)failwith "TODO"
 
 (* TMP *)
 let get_string (l : (int * string) list) i : string =  
@@ -148,23 +162,30 @@ let print_list l =
   print_string "]"
   (*print_string "\n"*)
 
-(* TMP *)
-let print_list_1 (l : int * string list) : unit =
-  let (x,y) = l in
-  print_string "[";
+let print_tuple_int_st (t : (int * string list)) : unit =
+  let (x,y) = t in
+  print_string "(";
   print_int x;
-  print_string ":";
+  print_string ",";
   print_list y;
-  print_string "]";
+  print_string ")";
   print_string "\n"
 
-(* print list of tuples *)
-let print_list_tuples (t : (int * string) list) : unit =
+let print_list_of_tuples (l : (int * (string list)) list) : unit =   
+  print_string "[";
+  List.iter (fun (h) -> let (x,y) = h in print_tuple_int_st h) l;
+  print_string "]";
+  print_string "\n"
+  
+
+(* TMP *)
+let print_list_tuples_1 (t : (int * string) list) : unit =
   let rec print_elements = function
     | [] -> ()
     | h::tail -> let (x,y) = h in
-      print_int x; print_string ":"; print_string y;
-    print_string "; ";
+    print_string "(";
+    print_int x; print_string ","; print_string y;
+    print_string ");";
     print_string "\n";
     print_elements tail
   in
@@ -173,22 +194,23 @@ let print_list_tuples (t : (int * string) list) : unit =
   print_string "]";
   print_string "\n"
 
+(************************  Exceptions  ******************************)
+
+
+
 (************************  Main functions  ******************************)
 
-let read_polish (filename:string) : program = 
-  failwith "TODO"
+let read_polish (filename:string) : program = failwith "TODO"
 
 let print_polish (p:program) : unit = failwith "TODO"
 
 let eval_polish (p:program) : unit = failwith "TODO"
 
 let usage () =
-  print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
+  (*print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
   print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p");  
-  print_string "\n";
-  print_string("  WHILE * i i <= n");
-  print_string "\n";
-  print_list_1(parse_line (2, "  WHILE * i i <= n"));
+  print_string "\n"; *)
+  print_list_of_tuples(split_all_code(read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p"));
   print_string "\n"
   
   (*print_string "Polish : analyse statique d'un mini-langage\n";
