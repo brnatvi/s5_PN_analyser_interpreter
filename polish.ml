@@ -76,7 +76,7 @@ let get_op (st : string) : op =
   | "*" -> Mul
   | "/" -> Div
   | "%" -> Mod
-  | _   -> failwith "not a operation"
+  | _   -> failwith "not an operation"
 
 let get_comp (st : string) : comp =
   match st with
@@ -86,10 +86,14 @@ let get_comp (st : string) : comp =
   | "<=" -> Le
   | ">"  -> Gt
   | ">=" -> Ge
-  |  _   -> failwith "not a operation of comparison"
+  |  _   -> failwith "not an operation of comparison"
 
 let check_assignment (st : string) : bool =  
   (st.[0] = ':') && (st.[1] = '=')
+
+(************************  Exceptions  ******************************)
+
+exception ErrorCountOffsets of int;;
 
 (********************** Auxiliary functions *****************************)
 
@@ -104,13 +108,14 @@ let read_file (filename:string) : ((int * string) list) =
     | None   -> close_in chan;
     List.rev acc in aux 1 []
 
+
 (* count number of blancs (offset) in line (string), if it is odd - exception *)
 let count_offset st : int =                       (* may be dont need this function *)
   let rec aux st i acc =
     match st.[i] with
     | ' ' -> aux st (i+1) (acc + 1)
     | _   -> if (acc mod 2 = 0) then acc
-    else failwith "block alignment failure"        (*TODO may be raise ?*)
+    else raise (ErrorCountOffsets acc)       (*TODO may be raise ?*)
   in aux st 0 0
 
 let splite_line (line : int * string) : string list =
@@ -194,10 +199,6 @@ let print_list_tuples_1 (t : (int * string) list) : unit =
   print_string "]";
   print_string "\n"
 
-(************************  Exceptions  ******************************)
-
-
-
 (************************  Main functions  ******************************)
 
 let read_polish (filename:string) : program = failwith "TODO"
@@ -210,8 +211,9 @@ let usage () =
   (*print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
   print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p");  
   print_string "\n"; *)
-  print_list_of_tuples(split_all_code(read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p"));
-  print_string "\n"
+  print_list_of_tuples(split_all_code(read_file "exemples/fact.p"));
+  print_string "\n";
+  print_int(count_offset("     jj"))
   
   (*print_string "Polish : analyse statique d'un mini-langage\n";
   print_string "usage: à documenter (TODO)\n"*)
