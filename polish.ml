@@ -81,23 +81,23 @@ let analize_variable (st : string) : name =
 let check_assignment (st : string) : bool =  
   (st.[0] = ':') && (st.[1] = '=')
 
-let rec analize_expr (l : string list) : expr =   
-    match l with
-    | [] -> Num 0  
-    | a::[] -> analyse_unique_not_op a
-    | a::b::tail -> 
-      match a with
-      | ("+"|"-"|"*"|"/"|"%") -> Op ((get_op a), analize_expr [b], analize_expr tail)   (*bad thing*) 
-      | _ -> analyse_unique_not_op a
-
-    and analyse_unique_not_op a =
+let get_name_or_var a =
     match (int_of_string_opt a) with
     | Some x -> Num x
     | None -> 
       match a with
-      | ("+"|"-"|"*"|"/"|"%") -> failwith "wrong expression"
-      | var -> Var var  
-         
+      | ("+"|"-"|"*"|"/"|"%") -> raise(Not_found)
+      | var -> Var var
+
+let analize_expr (l : string list) : expr =   
+  let lRev = List.rev l in
+  let rec aux list stack =      
+    match (try (get_name_or_var (List.hd list)) with e -> Not_found) with
+    | Num k -> aux (List.tl list) ((Num k )::stack)
+    | Var k -> aux (List.tl list) ((Var k)::stack)
+    | e -> aux (List.tl(List.tl(List.tl list))) (Op (get_op (List.hd list), (List.nth stack 0), (List.nth stack 1))::stack)   
+  in aux lRev []
+
 let analize_cond (l : string list) : cond =
   failwith "TODO"
 (************************  Exceptions  ******************************)
@@ -214,6 +214,20 @@ let print_list_tuples_1 (t : (int * string) list) : unit =
   print_string "]";
   print_string "\n"
 
+let print_op (o: op) : unit =
+  match o with
+  | Add -> print_string "+"  
+  | Sub -> print_string "-"  
+  | Mul -> print_string "*"  
+  | Div -> print_string "/"  
+  | Mod -> print_string "%"  
+
+let rec print_expr (e: expr) : unit =
+  match e with
+  | Num x -> print_int x
+  | Var v -> print_string v
+  | Op (op, e1, e2) -> print_string "("; print_op op; print_string ","; print_expr e1; print_string ","; print_expr e2; print_string ")"
+
 (************************  Evaluation  ******************************)
 
 (************************  Main functions  ******************************)
@@ -230,9 +244,7 @@ let usage () =
   (*print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
   print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p");  
   print_string "\n"; *)
-  print_list_of_tuples(split_all_code(read_file "exemples/fact.p"));
-  print_string "\n";
-  print_int(count_offset("     jj"))
+  print_expr(analize_expr (["+";"1";"*";"3";"n";]))
   
   (*print_string "Polish : analyse statique d'un mini-langage\n";
   print_string "usage: à documenter (TODO)\n"*)
