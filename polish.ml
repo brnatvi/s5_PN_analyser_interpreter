@@ -37,7 +37,7 @@ type comp =
 type cond = expr * comp * expr
 
 (** Instructions *)
-type instr =  
+type instr =
   | Set of name * expr    (* := *)
   | Read of name
   | Print of expr
@@ -55,20 +55,6 @@ module NameTable = Map.Make(String)
 module NameSet   = Set.Make(String)
 
 (**********************  Syntax check up  *******************************)
-
-(*let analize_expr (l : string list) : expr =  
-  match List.length l with 
-  | 1 -> try Num (int_of_string h) with Var h
-  | _ -> 
-*)
-
-let analize_cond (l : string list) : cond =
-  failwith "TODO"
-
-let analize_variable (st : string) : name =
-  if ((st.[0] = '+') || (st.[0] = '-') || (st.[0] = '*') || (st.[0] = '/') || (st.[0] = '%')) then failwith "not a variable"
-  else st 
-
 let get_op (st : string) : op =
   match st with
   | "+" -> Add
@@ -86,14 +72,37 @@ let get_comp (st : string) : comp =
   | "<=" -> Le
   | ">"  -> Gt
   | ">=" -> Ge
-  |  _   -> failwith "not an operation of comparison"
+  |  _   -> failwith "not a comparaison"
+  
+let analize_variable (st : string) : name =
+    if ((st.[0] = '+') || (st.[0] = '-') || (st.[0] = '*') || (st.[0] = '/') || (st.[0] = '%')) then failwith "not a variable"
+    else st 
 
 let check_assignment (st : string) : bool =  
   (st.[0] = ':') && (st.[1] = '=')
 
+let rec analize_expr (l : string list) : expr =   
+    match l with
+    | [] -> Num 0  
+    | a::[] -> analyse_unique_not_op a
+    | a::b::tail -> 
+      match a with
+      | ("+"|"-"|"*"|"/"|"%") -> Op ((get_op a), analize_expr [b], analize_expr tail)   (*bad thing*) 
+      | _ -> analyse_unique_not_op a
+
+    and analyse_unique_not_op a =
+    match (int_of_string_opt a) with
+    | Some x -> Num x
+    | None -> 
+      match a with
+      | ("+"|"-"|"*"|"/"|"%") -> failwith "wrong expression"
+      | var -> Var var  
+         
+let analize_cond (l : string list) : cond =
+  failwith "TODO"
 (************************  Exceptions  ******************************)
 
-exception ErrorCountOffsets of int;;
+exception ErrorCountOffsets of int
 
 (********************** Auxiliary functions *****************************)
 
@@ -107,7 +116,6 @@ let read_file (filename:string) : ((int * string) list) =
     | Some a -> aux (i+1) ((i,a) :: acc)
     | None   -> close_in chan;
     List.rev acc in aux 1 []
-
 
 (* count number of blancs (offset) in line (string), if it is odd - exception *)
 let count_offset st : int =                       (* may be dont need this function *)
@@ -131,22 +139,29 @@ let split_all_code (code : (int * string) list) : (int * (string list)) list =
   in aux [] (List.rev code)
 
 let compose_program (l : (int * (string list)) list) : program =   
-(*let rec aux acc p l =       (* inspect lines of code *)
-  match l with  
+(*let rec aux acc p list =       (* inspect lines of code p : position; acc : accumulator for program*)
+  match list with  
   | [] -> acc
-  | h::tail -> let (x, y) = h in    (* inspect words of line *)
+  | h::tail -> let (x, y) = h in    (* inspect words of line x : int , y : string list *)
+  let rec aux2 i offset =
     match y with
-    | "" -> aux acc (p+1) tail 
-    | "READ" -> (*let e = ..... in
-     let e = Print e in
-     let acc = (p,i)::acc in aux acc (p+1) 
-    analize_variable tail*) failwith "TODO" 
-    | "PRINT" -> failwith "TODO" 
-    | "IF" -> failwith "TODO"
-    | "WHILE" -> failwith "TODO"
-    | "COMMENT" -> failwith "TODO"
-    | _ -> failwith "TODO"    
-  in aux [] 1 l *)failwith "TODO"
+    | [] -> aux acc (p+1) list      (* if line is numerated but empty.. what if it is the last one ?*)
+    | a::tail2 -> match a with
+      | "" -> aux2 i (offset+1)               (* it's an offset *)
+      | ":=" -> failwith "TODO"                 (*filling of TabName*)       
+      | "READ" -> let e = get_name(analize_expr tail2) in            (* need to check if is number after READ *)
+     let name = Read e in
+     let acc = (p,i)::acc in aux acc (p+1)   
+      | "PRINT" -> (*let e = analize_expr tail2 in            (* need to check if is number after READ *)
+        let e = Print e in
+        let acc = (p,i)::acc in aux acc (p+1) *)failwith "TODO"              (* need to check if is instr after PRINT *)
+      | "IF" -> failwith "TODO"                 (* need to check if is cond*instr*instr after IF and create the blocks *)
+      | "WHILE" -> failwith "TODO"
+      | "COMMENT" -> failwith "TODO"            (* need ? *)
+      | _ -> failwith "TODO"              (* it's a variable *)
+    in aux2 0 0
+  in aux [] 1 l*)failwith "TODO"
+
 
 (* TMP *)
 let get_string (l : (int * string) list) i : string =  
@@ -199,13 +214,17 @@ let print_list_tuples_1 (t : (int * string) list) : unit =
   print_string "]";
   print_string "\n"
 
+(************************  Evaluation  ******************************)
+
 (************************  Main functions  ******************************)
 
-let read_polish (filename:string) : program = failwith "TODO"
+let read_polish (filename:string) : program = 
+  compose_program(split_all_code(read_file(filename)))
 
 let print_polish (p:program) : unit = failwith "TODO"
 
 let eval_polish (p:program) : unit = failwith "TODO"
+
 
 let usage () =
   (*print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
