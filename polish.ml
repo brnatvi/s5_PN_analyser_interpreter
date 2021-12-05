@@ -86,17 +86,27 @@ let get_name_or_var a =
     | Some x -> Num x
     | None -> 
       match a with
-      | ("+"|"-"|"*"|"/"|"%") -> raise(Not_found)
+      | "+" -> Op (Add, Num 0, Num 0)
+      | "-" -> Op (Sub, Num 0, Num 0)
+      | "*" -> Op (Mul, Num 0, Num 0)
+      | "/" -> Op (Div, Num 0, Num 0)
+      | "%" -> Op (Mod, Num 0, Num 0)
       | var -> Var var
+
+let truncateHead (lst : 'a list) (count : int) : 'a list =
+  List.filteri (fun x _ -> x >= count) lst                      (* VSCode does not supports List.filteri *)
 
 let analize_expr (l : string list) : expr =   
   let lRev = List.rev l in
-  let rec aux list stack =      
-    match (try (get_name_or_var (List.hd list)) with e -> Not_found) with
-    | Num k -> aux (List.tl list) ((Num k )::stack)
+  let rec aux list stack =  
+    match list with
+    | [] -> List.nth stack 0
+    | _ ->    
+    match (get_name_or_var (List.hd list)) with
+    | Num k -> aux (List.tl list) ((Num k)::stack)
     | Var k -> aux (List.tl list) ((Var k)::stack)
-    | e -> aux (List.tl(List.tl(List.tl list))) (Op (get_op (List.hd list), (List.nth stack 0), (List.nth stack 1))::stack)   
-  in aux lRev []
+    | Op (opName, _, _) -> aux (List.tl list) (Op (opName, (List.nth stack 0), (List.nth stack 1))::(truncateHead stack 2))   
+  in aux lRev [] 
 
 let analize_cond (l : string list) : cond =
   failwith "TODO"
@@ -239,13 +249,24 @@ let print_polish (p:program) : unit = failwith "TODO"
 
 let eval_polish (p:program) : unit = failwith "TODO"
 
-
 let usage () =
   (*print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/fact.p");  
   print_list_tuples (read_file "/home/nata/Documents/L3_PF/pf5-projet/exemples/factors.p");  
   print_string "\n"; *)
-  print_expr(analize_expr (["+";"1";"*";"3";"n";]))
-  
+  print_expr(analize_expr (["+";"1";"*";"3";"n";]));
+  print_string "\n";
+  print_expr(analize_expr (["1"]));
+  print_string "\n";
+  print_expr(analize_expr (["name"]));
+  print_string "\n";
+  print_expr(analize_expr (["+";"-";"20";"*";"3";"4";"1";]));
+  print_string "\n";
+  (*print_expr(analize_expr (["+";"-";"20";"*";"3";"4";]));           (* wrong expression*)
+  print_string "\n";
+  print_expr(analize_expr (["+";"-";"20";"*";"3";"4";"-";]));           (* wrong expression*)
+  print_string "\n";*)
+  print_expr(analize_expr (["%"]));
+  print_string "\n"
   (*print_string "Polish : analyse statique d'un mini-langage\n";
   print_string "usage: à documenter (TODO)\n"*)
 

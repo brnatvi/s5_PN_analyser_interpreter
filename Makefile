@@ -1,5 +1,5 @@
 binary:
-	dune build polish.exe
+	eval `opam env` && dune build polish.exe
 
 byte:
 	dune build polish.bc
