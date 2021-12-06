@@ -94,7 +94,7 @@ let get_name_or_var a =
       | var -> Var var
 
 let truncateHead (lst : 'a list) (count : int) : 'a list =
-  List.filteri (fun x _ -> x >= count) lst                      (* VSCode does not supports List.filteri *)
+  List.filteri (fun x _ -> x >= count) lst
 
 let analize_expr (l : string list) : expr =   
   let lRev = List.rev l in
@@ -107,9 +107,20 @@ let analize_expr (l : string list) : expr =
     | Var k -> aux (List.tl list) ((Var k)::stack)
     | Op (opName, _, _) -> aux (List.tl list) (Op (opName, (List.nth stack 0), (List.nth stack 1))::(truncateHead stack 2))   
   in aux lRev [] 
+  
 
 let analize_cond (l : string list) : cond =
-  failwith "TODO"
+  let l1 = [] in
+  let rec aux l acc =
+  match l with
+  | [] -> failwith "wrong condition"
+  | h::tail -> 
+    match h with
+    | "=" | "<>" | "<" | "<=" | ">" | ">=" -> (analize_expr (List.rev acc), get_comp h, analize_expr tail) 
+    | a -> aux tail (a::acc)
+  in aux l []
+
+
 (************************  Exceptions  ******************************)
 
 exception ErrorCountOffsets of int
@@ -157,8 +168,7 @@ let compose_program (l : (int * (string list)) list) : program =
     match y with
     | [] -> aux acc (p+1) list      (* if line is numerated but empty.. what if it is the last one ?*)
     | a::tail2 -> match a with
-      | "" -> aux2 i (offset+1)               (* it's an offset *)
-      | ":=" -> failwith "TODO"                 (*filling of TabName*)       
+      | "" -> aux2 i (offset+1)               (* it's an offset *)          
       | "READ" -> let e = get_name(analize_expr tail2) in            (* need to check if is number after READ *)
      let name = Read e in
      let acc = (p,i)::acc in aux acc (p+1)   
@@ -168,7 +178,7 @@ let compose_program (l : (int * (string list)) list) : program =
       | "IF" -> failwith "TODO"                 (* need to check if is cond*instr*instr after IF and create the blocks *)
       | "WHILE" -> failwith "TODO"
       | "COMMENT" -> failwith "TODO"            (* need ? *)
-      | _ -> failwith "TODO"              (* it's a variable *)
+      | _ -> failwith "TODO"       ":="  (*filling of TabName*)        (* it's a variable *)
     in aux2 0 0
   in aux [] 1 l*)failwith "TODO"
 
@@ -232,12 +242,30 @@ let print_op (o: op) : unit =
   | Div -> print_string "/"  
   | Mod -> print_string "%"  
 
+let print_comp (c: comp) : unit =
+  match c with  
+  | Eq -> print_string "= " 
+  | Ne -> print_string "<>"
+  | Lt -> print_string "<" 
+  | Le -> print_string "<="
+  | Gt -> print_string ">" 
+  | Ge -> print_string ">="
+
 let rec print_expr (e: expr) : unit =
   match e with
   | Num x -> print_int x
   | Var v -> print_string v
   | Op (op, e1, e2) -> print_string "("; print_op op; print_string ","; print_expr e1; print_string ","; print_expr e2; print_string ")"
 
+
+let print_cond (c: cond) : unit =
+  let (e1, comp, e2) = c in
+  print_string "(";
+  print_expr e1;
+  print_comp comp;
+  print_expr e2;  
+  print_string ")"
+  (* print_string "("; print_op op; print_string ","; print_expr e1; print_string ","; print_expr e2; print_string ")"*)
 (************************  Evaluation  ******************************)
 
 (************************  Main functions  ******************************)
@@ -261,6 +289,11 @@ let usage () =
   print_string "\n";
   print_expr(analize_expr (["+";"-";"20";"*";"3";"4";"1";]));
   print_string "\n";
+  print_cond(analize_cond(["n";"<";"-";"4";"1";]));
+  print_string "\n";
+  print_cond(analize_cond(["-";"n";"20";"<";"-";"4";"1";]));
+  print_string "\n";
+
   (*print_expr(analize_expr (["+";"-";"20";"*";"3";"4";]));           (* wrong expression*)
   print_string "\n";
   print_expr(analize_expr (["+";"-";"20";"*";"3";"4";"-";]));           (* wrong expression*)
