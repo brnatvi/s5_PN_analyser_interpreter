@@ -68,7 +68,7 @@ let get_op (st : string) : op =
   | "*" -> Mul
   | "/" -> Div
   | "%" -> Mod
-  | _   -> raise (WrongResult (st^" not an operation"))
+  | _   -> raise (WrongResult ("'"^st^"'"^" is not an operation"))
 
 let get_comp (st : string) : comp =
   match st with
@@ -78,7 +78,7 @@ let get_comp (st : string) : comp =
   | "<=" -> Le
   | ">"  -> Gt
   | ">=" -> Ge
-  |  _   -> raise (WrongResult (st^" not a comparaison"))
+  |  _   -> raise (WrongResult ("'"^st^"'"^" is not a comparaison"))
   
 let analize_variable (st : string) : name =
     if ((st.[0] = '+') || (st.[0] = '-') || (st.[0] = '*') || (st.[0] = '/') || (st.[0] = '%')) then failwith "not a variable"
@@ -110,14 +110,13 @@ let analize_expr (l : string list) : expr =
       try let s = (get_name_or_var h) in aux tail (s::stack)
     with FoundOpName opName ->
         aux tail (Op(opName, (List.nth stack 0), (List.nth stack 1))::(truncateHead stack 2))     
-  in aux (List.rev l) [] 
-  
+  in aux (List.rev l) []  
 
 let analize_cond (l : string list) : cond =
   let l1 = [] in
   let rec aux l acc =
   match l with
-  | [] -> raise (WrongResult ("wrong comparaison"))
+  | [] -> raise (WrongResult (" wrong comparaison"))
   | h::tail -> 
     match h with
     | "=" | "<>" | "<" | "<=" | ">" | ">=" -> (analize_expr (List.rev acc), get_comp h, analize_expr tail) 
@@ -293,10 +292,10 @@ let usage () =
   print_cond(analize_cond(["-";"n";"20";"<";"-";"4";"1";]));
   print_string "\n";
 
-  (*print_expr(analize_expr (["+";"-";"20";"*";"3";"4";]));           (* wrong expression*)
+  print_expr(analize_expr (["+";"-";"20";"*";"3";"4";]));           (* wrong expression*)
   print_string "\n";
   print_expr(analize_expr (["+";"-";"20";"*";"3";"4";"-";]));           (* wrong expression*)
-  print_string "\n";*)
+  print_string "\n";
   print_expr(analize_expr (["%"]));
   print_string "\n"
   (*print_string "Polish : analyse statique d'un mini-langage\n";
