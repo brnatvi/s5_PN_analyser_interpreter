@@ -54,6 +54,12 @@ module NameTable = Map.Make(String)
 
 module NameSet   = Set.Make(String)
 
+(************************  Exceptions  ******************************)
+
+exception ErrorCountOffsets of int
+exception FoundOpName of op
+exception WrongResult of string
+
 (**********************  Syntax check up  *******************************)
 let get_op (st : string) : op =
   match st with
@@ -62,7 +68,7 @@ let get_op (st : string) : op =
   | "*" -> Mul
   | "/" -> Div
   | "%" -> Mod
-  | _   -> failwith "not an operation"
+  | _   -> raise (WrongResult (st^" not an operation"))
 
 let get_comp (st : string) : comp =
   match st with
@@ -72,7 +78,7 @@ let get_comp (st : string) : comp =
   | "<=" -> Le
   | ">"  -> Gt
   | ">=" -> Ge
-  |  _   -> failwith "not a comparaison"
+  |  _   -> raise (WrongResult (st^" not a comparaison"))
   
 let analize_variable (st : string) : name =
     if ((st.[0] = '+') || (st.[0] = '-') || (st.[0] = '*') || (st.[0] = '/') || (st.[0] = '%')) then failwith "not a variable"
@@ -86,44 +92,37 @@ let get_name_or_var a =
     | Some x -> Num x
     | None -> 
       match a with
-      | "+" -> Op (Add, Num 0, Num 0)
-      | "-" -> Op (Sub, Num 0, Num 0)
-      | "*" -> Op (Mul, Num 0, Num 0)
-      | "/" -> Op (Div, Num 0, Num 0)
-      | "%" -> Op (Mod, Num 0, Num 0)
+      | "+" -> raise (FoundOpName (Add))
+      | "-" -> raise (FoundOpName (Sub))
+      | "*" -> raise (FoundOpName (Mul))
+      | "/" -> raise (FoundOpName (Div))
+      | "%" -> raise (FoundOpName (Mod))
       | var -> Var var
 
 let truncateHead (lst : 'a list) (count : int) : 'a list =
   List.filteri (fun x _ -> x >= count) lst
 
 let analize_expr (l : string list) : expr =   
-  let lRev = List.rev l in
   let rec aux list stack =  
     match list with
     | [] -> List.nth stack 0
-    | _ ->    
-    match (get_name_or_var (List.hd list)) with
-    | Num k -> aux (List.tl list) ((Num k)::stack)
-    | Var k -> aux (List.tl list) ((Var k)::stack)
-    | Op (opName, _, _) -> aux (List.tl list) (Op (opName, (List.nth stack 0), (List.nth stack 1))::(truncateHead stack 2))   
-  in aux lRev [] 
+    | h::tail ->
+      try let s = (get_name_or_var h) in aux tail (s::stack)
+    with FoundOpName opName ->
+        aux tail (Op(opName, (List.nth stack 0), (List.nth stack 1))::(truncateHead stack 2))     
+  in aux (List.rev l) [] 
   
 
 let analize_cond (l : string list) : cond =
   let l1 = [] in
   let rec aux l acc =
   match l with
-  | [] -> failwith "wrong condition"
+  | [] -> raise (WrongResult ("wrong comparaison"))
   | h::tail -> 
     match h with
     | "=" | "<>" | "<" | "<=" | ">" | ">=" -> (analize_expr (List.rev acc), get_comp h, analize_expr tail) 
     | a -> aux tail (a::acc)
   in aux l []
-
-
-(************************  Exceptions  ******************************)
-
-exception ErrorCountOffsets of int
 
 (********************** Auxiliary functions *****************************)
 
