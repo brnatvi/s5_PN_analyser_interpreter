@@ -313,14 +313,11 @@ let print_polish (p:program) : unit =
 let eval_polish (p:program) : unit = failwith "TODO"
 
 let usage () =
-  print_string "Polish : analyse statique d'un mini-langage\n";
-  print_string "usage: à documenter (TODO)\n"; 
-  print_string "\n"; 
-  print_polish (read_polish "./exemples/factors.p");
-  print_string "\n";
-  print_polish (read_polish "./exemples/fibo.p");
-  print_string "\n";
-  print_polish (read_polish "./exemples/syracuse.p")
+  print_string "Polish : mini-language static analizer\n\n";
+  print_string "Usage: dune exec -- ./polish.exe [option] filename \n\n";
+  print_string "Options: \n";
+  print_string "--reprint - analyze input file and reprint program\n";
+  print_string "--eval    - execute input file\n"
 
 let main () =
   match Sys.argv with
