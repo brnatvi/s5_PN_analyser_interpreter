@@ -78,6 +78,16 @@ let rec evaluate_expression (ex:expr) (env: int NameTable.t) =
   | Var v -> 
     try (NameTable.find v env) with Not_found -> 
       raise (WrongResult (Printf.sprintf "Unknown variable %s" v))
+
+let evaluate_condition (cm:comp) (ex1:expr) (ex2:expr) (env: int NameTable.t) : bool =
+  match cm with
+  | Eq -> (evaluate_expression ex1 env) =  (evaluate_expression ex2 env)(* = *)
+  | Ne -> (evaluate_expression ex1 env) <> (evaluate_expression ex2 env)(* Not equal, <> *)
+  | Lt -> (evaluate_expression ex1 env) <  (evaluate_expression ex2 env)(* Less than, < *)
+  | Le -> (evaluate_expression ex1 env) <= (evaluate_expression ex2 env)(* Less or equal, <= *)
+  | Gt -> (evaluate_expression ex1 env) >  (evaluate_expression ex2 env)(* Greater than, > *)
+  | Ge -> (evaluate_expression ex1 env) >= (evaluate_expression ex2 env)(* Greater or equal, >= *)
+
 (******************************************  Syntax check up  *********************************************************)
 let get_op (st : string) : op =
   match st with
