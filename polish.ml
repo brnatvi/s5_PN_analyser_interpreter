@@ -71,6 +71,13 @@ let eval_bop (o:op) =
   | Div -> (fun x y -> x / y)
   | Mod -> (fun x y -> x mod y)
 
+let rec evaluate_expression (ex:expr) (env: int NameTable.t) =
+  match ex with
+  | Num x -> x
+  | Op (o, x1, x2) ->  eval_bop o (evaluate_expression x1 env) (evaluate_expression x2 env)
+  | Var v -> 
+    try (NameTable.find v env) with Not_found -> 
+      raise (WrongResult (Printf.sprintf "Unknown variable %s" v))
 (******************************************  Syntax check up  *********************************************************)
 let get_op (st : string) : op =
   match st with
