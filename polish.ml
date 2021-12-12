@@ -62,6 +62,15 @@ exception FoundOpName of op
 exception WrongResult of string
 exception WrongSyntax of string
 
+(******************************************* Evaluate functions *******************************************************)
+let eval_bop (o:op) =
+  match o with
+  | Add -> (fun x y -> x + y)
+  | Sub -> (fun x y -> x - y)
+  | Mul -> (fun x y -> x * y)
+  | Div -> (fun x y -> x / y)
+  | Mod -> (fun x y -> x mod y)
+
 (******************************************  Syntax check up  *********************************************************)
 let get_op (st : string) : op =
   match st with
