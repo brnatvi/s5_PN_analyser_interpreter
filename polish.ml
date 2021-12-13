@@ -88,6 +88,24 @@ let evaluate_condition (cm:comp) (ex1:expr) (ex2:expr) (env: int NameTable.t) : 
   | Gt -> (evaluate_expression ex1 env) >  (evaluate_expression ex2 env)(* Greater than, > *)
   | Ge -> (evaluate_expression ex1 env) >= (evaluate_expression ex2 env)(* Greater or equal, >= *)
 
+let rec evaluate_block (bl:block) (env: int NameTable.t) : int NameTable.t =
+  match bl with  
+  | [] -> env
+  | h::tail -> 
+    let (_, inst) = h in 
+      match inst with
+      | Set (nm, ex) -> let env = NameTable.add nm (evaluate_expression ex env) env in (evaluate_block tail env)
+      | Read (nm) -> Printf.printf "Enter %s variable value: " nm;
+                      let env = NameTable.add nm (read_int()) env in (evaluate_block tail env)
+      | Print (ex) -> Printf.printf "%d\n" (evaluate_expression ex env); (evaluate_block tail env)
+      | If (cd, bl1, bl2) -> let (ex1, cd, ex2) = cd in
+                               if (evaluate_condition (cd) (ex1) (ex2) (env))
+                               then (evaluate_block tail (evaluate_block bl1 env))
+                               else (evaluate_block tail (evaluate_block bl2 env))
+      | While (cd, wbl) -> let (ex1, cd, ex2) = cd in
+                            if (evaluate_condition (cd) (ex1) (ex2) (env))
+                            then (evaluate_block bl (evaluate_block wbl env))
+                            else (evaluate_block tail env)
 (******************************************  Syntax check up  *********************************************************)
 let get_op (st : string) : op =
   match st with
@@ -334,9 +352,10 @@ let read_polish (filename:string) : program =
   build_block(split_all_code(read_file(filename)))
 
 let print_polish (p:program) : unit = 
-  print_block (p) 0
+  print_block p 0
 
-let eval_polish (p:program) : unit = failwith "TODO"
+let eval_polish (p:program) : unit = 
+  let _ = evaluate_block p NameTable.empty in ()
 
 let usage () =
   print_string "Polish : mini-language static analizer\n\n";
