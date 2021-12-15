@@ -17,7 +17,7 @@ exception FoundOpName of op
 exception WrongResult of string
 exception WrongSyntax of string
 
-(******************************************* Read functions ******************************************************)
+(******************************************* Read and split functions ******************************************************)
 
 (* read code from file and store it to list *)
 let read_file (filename:string) : ((int * string) list) =  
@@ -30,19 +30,6 @@ let read_file (filename:string) : ((int * string) list) =
     | None   -> close_in chan;
     List.rev acc in aux 1 []
 
-(* count block offset, each offset = 2 spaces, if it is odd - exception *)
-  let rec block_offset (l : string list) (offset : int) : int =    
-    match l with
-    | [] -> empty_string
-    | h::tail -> 
-      match h with
-      | "" -> block_offset tail (offset + 1)
-      | "\n" ->  empty_string
-      | _ ->  
-        if (offset mod 2 = 0) then offset / 2 
-             else raise (ErrorCountOffsets offset) 
-
-(******************************************* Split functions***********************************************************)
 let split_line (line : int * string) : string list =
   let (x, y) = line in    
   let splited = String.split_on_char ' ' y in splited
@@ -67,7 +54,8 @@ let eval_polish (p:program) : unit =
 
 let usage () =
   print_string "Polish : mini-language static analizer\n\n";
-  print_string "Usage: dune exec -- ./polish.exe [option] filename \n\n";
+  print_string "Usage: dune exec -- ./polish.exe [option] pathfile \n\n";
+  print_string "   or: ./run [option] pathfile \n\n";
   print_string "Options: \n";
   print_string "--reprint - analyze input file and reprint program\n";
   print_string "--eval    - execute input file\n"

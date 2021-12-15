@@ -88,17 +88,18 @@ let analyse_set (l : string list) : instr=
   in aux l []
 
 (******************************************* Build block***************************************************************)
-    (* count block offset, each offset = 2 spaces, if it is odd - exception *)
-    let rec block_offset (l : string list) (offset : int) : int =    
-      match l with
-      | [] -> empty_string
-      | h::tail -> 
-        match h with
-        | "" -> block_offset tail (offset + 1)
-        | "\n" ->  empty_string
-        | _ ->  
-          if (offset mod 2 = 0) then offset / 2 
-               else raise (ErrorCountOffsets offset) 
+
+(* count block offset, each offset = 2 spaces, if it is odd - exception *)
+  let rec block_offset (l : string list) (offset : int) : int =    
+    match l with
+    | [] -> empty_string
+    | h::tail -> 
+      match h with
+      | "" -> block_offset tail (offset + 1)
+      | "\n" ->  empty_string
+      | _ ->  
+        if (offset mod 2 = 0) then offset / 2 
+             else raise (ErrorCountOffsets offset) 
 
 
 (* append element to list and return obtained list*)
