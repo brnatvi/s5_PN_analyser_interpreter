@@ -2,10 +2,7 @@ open Types
 
 (***********************************************  Exceptions  *********************************************************)
 
-exception ErrorCountOffsets of int
-exception FoundOpName of op
 exception WrongResult of string
-exception WrongSyntax of string
 
 (******************************************* Evaluate functions *******************************************************)
 let eval_bop (o:op) =

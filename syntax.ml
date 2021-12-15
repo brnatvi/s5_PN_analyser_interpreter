@@ -4,7 +4,6 @@ open Types
 exception ErrorCountOffsets of int
 exception FoundOpName of op
 exception WrongResult of string
-exception WrongSyntax of string
 
 (******************************************  Syntax check up  *********************************************************)
 let get_op (st : string) : op =
