@@ -1,5 +1,5 @@
 (executable
 (name polish)
- (modules evaluate prints types syntax polish)
+ (modules evaluate prints types syntax polish vars)
  (flags :standard -w -27-26-32-33 \ -short-paths)
 )

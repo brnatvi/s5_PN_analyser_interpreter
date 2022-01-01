@@ -57,3 +57,6 @@ let rec print_block (b: block) (d : int) : unit =
                           print_string "WHILE "; print_cond c; print_string "\n";
                           print_block bl (d + 1); 
                           print_block tail d
+                          
+                          
+let print_set (s:Names.t) = Names.iter (fun (x) -> print_string x; print_string " ") s
