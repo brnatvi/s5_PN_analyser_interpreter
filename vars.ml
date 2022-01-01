@@ -3,7 +3,7 @@ open Prints
 
 (************************************************ Vars ****************************************************************)
 
-(* check if expresiion is present in set *)
+(* check if expression is present in set *)
 let rec is_present (e:expr) (vars: Names.t) : bool =  
   match e with 
   | Num a -> true
@@ -49,16 +49,16 @@ let rec vars_program (bl:block) (v_all:Names.t) (v_initialized:Names.t) : (Names
   | h::tail -> 
     let (_, inst) = h in 
       match inst with
-      | Set (nm, ex) -> if is_present ex v_initialized then   
-                          vars_program tail (Names.add nm v_all) (Names.add nm v_initialized)    
-                        else vars_program tail (Names.add nm v_all) v_initialized                 
+      | Set (nm, ex) -> if is_present ex v_all then          
+                          vars_program tail (Names.add nm v_all) (Names.add nm v_initialized)   
+                        else 
+                          let x = add_expr ex v_all in
+                          vars_program tail (Names.add nm x) (Names.add nm v_initialized)                  
 
-      | Read (nm) ->  let (x,y) = (add_everywhere (Var nm) v_all v_initialized) in                       
-                      vars_program tail x y
+      | Read (nm) ->  vars_program tail (Names.add nm v_all) (Names.add nm v_initialized)
 
-      | Print (ex) -> if (is_present ex v_initialized) then 
-                        let (x,y) = (add_everywhere ex v_all v_initialized) in                       
-                        vars_program tail x y
+      | Print (ex) -> if (is_present ex v_all) then                                       
+                        vars_program tail v_all v_initialized
                       else vars_program tail (add_expr ex v_all) v_initialized
 
       | While (cd, wbl) -> if (is_present_cond cd v_initialized) then 
@@ -74,13 +74,8 @@ let rec vars_program (bl:block) (v_all:Names.t) (v_initialized:Names.t) : (Names
                                 let varsBl1 = Names.diff y v_initialized in
 
                                 let (a, b) = (vars_program bl2 x (Names.diff y varsBl1)) in
-                                let varsBl2 = Names.diff b v_initialized in
-                                
-                                (*let () = print_string "first block:\n" in
-                                let () = print_set (varsBl1) in 
-                                let () = print_string "\nsecond block:\n" in 
-                                let () = print_set (varsBl2) in
-                                let () = print_string "\n---------------\n" in *)
+                                let varsBl2 = Names.diff b v_initialized in                                
+                               
                                 let varsBlIf = Names.inter varsBl1 varsBl2 in
                                vars_program tail a (Names.union v_initialized varsBlIf)                          
                                          
