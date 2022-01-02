@@ -46,4 +46,7 @@ type program = block
 type sign = Neg | Zero | Pos | Error
 
 module NameTable = Map.Make(String)
+
+module Names = Set.Make(String)
+
 let empty_string : int = -1
