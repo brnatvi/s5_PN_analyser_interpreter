@@ -1,5 +1,7 @@
+open Evaluate
 open Types
 open Prints
+open Syntax
 
 (*********************************************** Exceptions *********************************************************)
 exception ByZero of string
@@ -99,3 +101,31 @@ let see (b: block) : block =
   | [] -> acc
   | h::tail -> let (vv, vv') = h in aux tail ((vv, simpl_instr vv')::acc)
   in aux b []
+
+let rec simpl_expr(e: expr) : expr = 
+  match e with
+  | Num x -> Num x
+  | Var x -> Var x
+  | Op (o, e1, e2) ->
+    match (o, simpl_expr (e1), simpl_expr (e2)) with
+    | (Mul, Num 0, _) -> Num 0    (* x*0 = 0 *)
+    | (Mul, _, Num 0) -> Num 0    (* 0*x = 0 *)
+    | (Add, ex1, Num 0) -> ex1    (* 0+x = x *)
+    | (Add, Num 0, ex2) -> ex2    (* x+0 = x *)
+    | (Sub, ex1, Num 0) -> ex1    (* x-0 = x *)
+    | (Mul, ex1, Num 1) -> ex1    (* x*1 = x *)
+    | (Mul, Num 1, ex2) -> ex2    (* 1*x = x *)
+    | (Div, ex1, Num 1) -> ex1    (* x/1 = x *)
+    | (Div, Num 0, ex2) -> Num 0  (* 0/x = 0 *)
+    | (Mod, ex1, Num 1) -> Num 0  (* x%1 = 0 *)
+    | (o, Num n1, Num n2) -> Num (eval_bop o n1 n2)
+    | (o, ex1, ex2) -> Op(o, ex1, ex2) (* return initial expression *)
+
+let simpl_condition (cm:comp) (a1:int) (a2:int) : bool =
+  match cm with
+  | Eq -> a1 =  a2 (* = *)
+  | Ne -> a1 <> a2 (* Not equal, <> *)
+  | Lt -> a1 <  a2 (* Less than, < *)
+  | Le -> a1 <= a2 (* Less or equal, <= *)
+  | Gt -> a1 >  a2 (* Greater than, > *)
+  | Ge -> a1 >= a2 (* Greater or equal, >= *)
