@@ -9,6 +9,7 @@ open Evaluate
 open Types
 open Prints
 open Syntax
+open Simplify
 
 (***********************************************  Exceptions  *********************************************************)
 
@@ -52,6 +53,9 @@ let print_polish (p:program) : unit =
 let eval_polish (p:program) : unit = 
   let _ = evaluate_block p NameTable.empty in ()
 
+let simple_polish (p:program) : program = 
+  let (p, _) = simpl_block p [] 1 in p
+
 let usage () =
   print_string "Polish : mini-language static analizer\n\n";
   print_string "Usage: dune exec -- ./polish.exe [option] pathfile \n\n";
@@ -64,6 +68,7 @@ let main () =
   match Sys.argv with
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
   | [|_;"--eval";file|] -> eval_polish (read_polish file)
+  | [|_;"--simpl";file|] -> print_polish (simple_polish (read_polish file))
   | _ -> usage ()
 
 (* lancement de ce main *)
