@@ -27,8 +27,9 @@ et ensuite les blocs d'instructions.
 
 prints.ml : les fonctions d'affichage.
 
+Nous avons ajouté des fichiers .mli pour trois modules (prints.ml, syntax.ml, evaluate,ml) pour limiter
+l'accès à leur contenu des autres modules et rendre visible juste les fonctions nécessaires ailleurs.
+
 5. Organisation du travail : Nous avons surtout réparti les tâches concernant les fonctionnalités -reprint et -eval. 
 Le prétraitement du code s'est effectué pendant le travail sur -reprint et l'organisation modulaire du programme a été 
 effectué après l'implémentation de -eval.
-
-6. 
