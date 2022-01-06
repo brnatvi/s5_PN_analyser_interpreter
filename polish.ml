@@ -1,4 +1,3 @@
-
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
 (** Note : cet embryon de projet est pour l'instant en un seul fichier
@@ -10,6 +9,7 @@ open Types
 open Prints
 open Syntax
 open Vars
+open Simplify
 
 (***********************************************  Exceptions  *********************************************************)
 
@@ -59,7 +59,8 @@ let vars_polish (p:program) : unit =
   let (v_all, v_initialized) = vars_program p (Names.empty) (Names.empty) in let second = Names.diff v_all v_initialized
   in print_set v_all; print_string "\n"; print_set second; print_string "\n"
 
-  
+let simple_polish (p:program) : program =
+    let (p, _) = simpl_block p [] 1 in p
 
 let usage () =
   print_string "Polish : mini-language static analizer\n\n";
@@ -75,7 +76,8 @@ let main () =
   match Sys.argv with
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
   | [|_;"--eval";file|] -> eval_polish (read_polish file)
-  | [|_;"--vars";file|] -> vars_polish (read_polish file)  
+  | [|_;"--vars";file|] -> vars_polish (read_polish file)
+    | [|_;"--simpl";file|] -> print_polish (simple_polish (read_polish file))
   | _ -> usage ()
 
 (* lancement de ce main *)
