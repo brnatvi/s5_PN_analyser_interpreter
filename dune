@@ -1,5 +1,9 @@
 (executable
 (name polish)
+<<<<<<< dune
+ (modules evaluate prints types syntax simplify polish vars)
+=======
  (modules evaluate prints types syntax polish vars)
+>>>>>>> dune
  (flags :standard -w -27-26-32-33 \ -short-paths)
 )
