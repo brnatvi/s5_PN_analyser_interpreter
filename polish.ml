@@ -69,16 +69,21 @@ let usage () =
   print_string "Options: \n";
   print_string "--reprint - analyze input file and reprint program\n";
   print_string "--eval    - execute input file\n";
-  print_string "--vars    - display two sets of variables: 
-  first one with all variables presents in code, seconde one with variables accessible before their first writing\n"
-
+  print_string "--vars    - display two sets of variables:
+  first one with all variables presents in code, second one with variables accessible before their first writing\n";
+  print_string "--simpl   - simplify expressions & blocks and print the simplified program\n";
+  print_string "--sign    - analyze and print signes of all available variables\n"
+    
+      
+    
 let main () =
   match Sys.argv with
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
   | [|_;"--eval";file|] -> eval_polish (read_polish file)
-  | [|_;"--vars";file|] -> vars_polish (read_polish file)
-    | [|_;"--simpl";file|] -> print_polish (simple_polish (read_polish file))
+  | [|_;"--vars";file|] -> vars_polish (read_polish file)  
+  | [|_;"--simpl";file|] -> print_polish (simple_polish (read_polish file))  
+  | [|_;"--sign";file|] -> sign_polish (read_polish file)
   | _ -> usage ()
-
-(* lancement de ce main *)
+    
+  (* lancement de ce main *)
 let () = main ()

@@ -113,4 +113,12 @@ let get_bop_signes(o:op)(s1:sign)(s2:sign): sign list =
   | Div
   | Mod -> get_div_signes s1 s2
 
+let get_block_signes (bl : block) (m : sign list NameTable.t) (ln : int) : (int * sign list NameTable.t) =
+  failwith "TODO"
+  
+let sign_polish (p:program) : unit =
+  let (ln, p) = get_block_signes p (NameTable.empty) (-1) in
+  let () = print_vars_signes p in
+    if (ln > -1) then Printf.printf "divbyzero %d\n" ln
+    else Printf.printf "safe\n"
 
