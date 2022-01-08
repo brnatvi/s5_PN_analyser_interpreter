@@ -45,6 +45,8 @@ type program = block
 
 type sign = Neg | Zero | Pos | Error
 
+type signes = sign list
+
 module NameTable = Map.Make(String)
 
 module Names = Set.Make(String)
