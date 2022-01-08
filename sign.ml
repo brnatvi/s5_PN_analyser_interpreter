@@ -113,4 +113,3 @@ let get_bop_signes(o:op)(s1:sign)(s2:sign): sign list =
   | Div
   | Mod -> get_div_signes s1 s2
 
-
