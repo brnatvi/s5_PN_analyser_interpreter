@@ -128,15 +128,44 @@ let rec get_expression_signes(e : expr)(m : sign list NameTable.t) : sign list =
   | Op (o, x1, x2) -> deduct_signes_op o (get_expression_signes x1 m) (get_expression_signes x2 m) []
 
 
+let get_error_line(s : sign list)(pErr : int)(p : int) : int = 
+  if pErr > -1 then pErr
+  else if List.mem Error s then p else -1
+
 
 (* principal functions *)
-
-let get_block_signes (bl : block) (m : sign list NameTable.t) (pErr : int) : (int * sign list NameTable.t) =
-  failwith "TODO"
+(* make propagation of signes in bloc (pErr = position of divbysero) *)
+let rec get_block_signes (bl : block) (m : sign list NameTable.t) (pErr : int) : (int * sign list NameTable.t) =
+  match bl with  
+  | [] -> (pErr, m)
+  | h::tail -> 
+    let (p, inst) = h in 
+      match inst with
+      | Set (nm, ex) -> 
+        let sgns = get_expression_signes (simpl_expr ex) m in 
+          let pErr = get_error_line sgns pErr p in
+            let m = NameTable.add nm sgns m in (get_block_signes tail m pErr)
+      | Read (nm) -> let m = NameTable.add nm [Zero; Pos; Neg] m in (get_block_signes tail m pErr)
+      | Print (ex) -> (pErr, m)
+      | If (cd, bl1, bl2) -> 
+        let (ex1, cd, ex2) = cd in
+          let s1 = (get_expression_signes (simpl_expr ex1) m) in let s2 = (get_expression_signes (simpl_expr ex1) m) in
+            let pErr = get_error_line s1 pErr p in let pErr = get_error_line s2 pErr p in
+              let (pErr, m) = (get_block_signes bl1 m pErr) in let (pErr, m) = (get_block_signes bl2 m pErr) in
+                get_block_signes tail m pErr    
   
-let sign_polish (p:program) : unit =
-  let (pErr, p) = get_block_signes p (NameTable.empty) (-1) in
-  let () = print_vars_signes (p) in
-    if (pErr > -1) then Printf.printf "divbyzero %d\n" pErr
-    else Printf.printf "safe\n"
+      | While (cd, wbl) -> 
+        let (pErr, mp) = get_block_signes wbl m pErr in
+          if is_vars_signes_equal mp m then get_block_signes tail mp pErr
+          else 
+            let (ex1, cd, ex2) = cd in
+              let s1 = (get_expression_signes (simpl_expr ex1) m) in let s2 = (get_expression_signes (simpl_expr ex1) m) in
+                let pErr = get_error_line s1 pErr p in let pErr = get_error_line s2 pErr p in
+                  get_block_signes [h] m pErr
 
+let sign_polish (p:program) : unit =
+  let (ln, p) = get_block_signes p (NameTable.empty) (-1) in
+  let () = print_vars_signes (p) in
+    if (ln > -1) then Printf.printf "divbyzero %d\n" ln
+    else Printf.printf "safe\n"
+  

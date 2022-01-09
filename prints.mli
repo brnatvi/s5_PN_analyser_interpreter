@@ -4,4 +4,8 @@ val print_block : block -> int -> unit
 (** prints the given block *)
 
 val print_set : Names.t -> unit
-(** prints the set *)
+(** prints the set *)          
+
+val print_expr : expr -> unit
+(** prints expression *)          
+  

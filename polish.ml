@@ -9,7 +9,8 @@ open Types
 open Prints
 open Syntax
 open Vars
-open Simplify
+open Simpl
+open Sign
 
 (***********************************************  Exceptions  *********************************************************)
 
@@ -58,9 +59,7 @@ let eval_polish (p:program) : unit =
 let vars_polish (p:program) : unit = 
   let (v_all, v_initialized) = vars_program p (Names.empty) (Names.empty) in let second = Names.diff v_all v_initialized
   in print_set v_all; print_string "\n"; print_set second; print_string "\n"
-
-let simple_polish (p:program) : program =
-    let (p, _) = simpl_block p [] 1 in p
+  
 
 let usage () =
   print_string "Polish : mini-language static analizer\n\n";
@@ -73,17 +72,17 @@ let usage () =
   first one with all variables presents in code, second one with variables accessible before their first writing\n";
   print_string "--simpl   - simplify expressions & blocks and print the simplified program\n";
   print_string "--sign    - analyze and print signes of all available variables\n"
-    
-      
-    
+
+  
+
 let main () =
   match Sys.argv with
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
-  | [|_;"--eval";file|] -> eval_polish (read_polish file)
-  | [|_;"--vars";file|] -> vars_polish (read_polish file)  
-  | [|_;"--simpl";file|] -> print_polish (simple_polish (read_polish file))  
-  | [|_;"--sign";file|] -> sign_polish (read_polish file)
+  | [|_;"--eval";file|]    -> eval_polish (read_polish file)
+  | [|_;"--vars";file|]    -> vars_polish (read_polish file)  
+  | [|_;"--simpl";file|]   -> print_polish (simple_polish (read_polish file))  
+  | [|_;"--sign";file|]    -> sign_polish (read_polish file)
   | _ -> usage ()
-    
-  (* lancement de ce main *)
+
+(* lancement de ce main *)
 let () = main ()

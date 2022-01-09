@@ -74,3 +74,6 @@ let rec simpl_block (oldB: block) (newB: block) (pos : int) : block * int =
              let (ifB, pos) = simpl_block wbl [] (pos+1) in
                let newB = append newB (pos, While ((pex1, comp, pex2), ifB)) in simpl_block tail newB (pos+1)   
           )
+
+let simple_polish (p:program) : program = 
+ let (p, _) = simpl_block p [] 1 in p
