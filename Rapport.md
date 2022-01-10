@@ -28,9 +28,9 @@ vars.ml : affiche les noms des variables du fichier .p en question et les répar
 simpl.ml : affiche le programme .p passé en paramètres après sa simplification, c'est-à-dire après avoir fait les opérations arithmétiques possibles et après avoir fait la propagation des constantes. 
 
 sign.ml : considère les signes possibles des variables. Nous avons implémenté -sign dans 
-une version où dans "if" et "while" la valuation des variables ne se fait pas; on effectue 
-juste la propagation des variables dans les blocs. Mais nous avons écrit l'essentiel des fonctions qui permetteraient cette valuation. Nous avons introduit un nouveau type pour cette valuation: sign_bool qui peut prendre les valeurs Yes | No | May be.
-
+une version où la valuation des variables exigée se fait dans "if"; 
+pour "while" on effectue juste la propagation des variables dans les blocs. 
+Nous avons introduit un nouveau type pour cette valuation: sign_bool qui peut prendre les valeurs Yes | No | May be.
 Nous avons ajouté des fichiers .mli pour six modules (prints.ml, syntax.ml, evaluate.ml, 
 vars.ml, simpl.ml, sign.ml) pour limiter
 l'accès à leur contenu des autres modules et rendre visible juste les fonctions nécessaires ailleurs.
