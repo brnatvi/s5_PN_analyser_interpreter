@@ -43,12 +43,20 @@ and block = (position * instr) list
 (** Un programme Polish est un bloc d'instructions *)
 type program = block
 
+(** Possible signes *)
 type sign = Neg | Zero | Pos | Error
 
+(** Possible evaluations of signes list *)
+type sign_bool = Yes | No | MayBe
+
+(** List of signes *)
 type signes = sign list
 
+(** Environnement *)
 module NameTable = Map.Make(String)
 
+(** Set of variables *)
 module Names = Set.Make(String)
 
+(** Empty string *)
 let empty_string : int = -1
