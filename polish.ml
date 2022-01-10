@@ -1,9 +1,5 @@
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
-(** Note : cet embryon de projet est pour l'instant en un seul fichier
-    polish.ml. Il est recommandé d'architecturer ultérieurement votre
-    projet en plusieurs fichiers source de tailles raisonnables *)
-
 open Evaluate
 open Types
 open Prints

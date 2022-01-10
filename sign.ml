@@ -259,8 +259,12 @@ let rec get_block_signes (bl : block) (m : sign list NameTable.t) (pErr : int) :
                 
               | MayBe ->  let invers_s1 = invers_sign_list s1 in let invers_s2 = invers_sign_list s2 in  (* invers signes for both expr*)
                       let pErr = get_error_line s1 pErr p in let pErr = get_error_line s2 pErr p in     (* find pErr for both expr*)
-                      let (pErr, m) = (get_block_signes bl1 m pErr) in 
-                      let (pErr, m) = (get_block_signes bl2 m pErr) in
+                      let (pErr, m1) = (get_block_signes bl1 m pErr) in 
+                      let (pErr, m2) = (get_block_signes bl2 m pErr) in
+                      let m = NameTable.merge (fun k xo yo ->
+                        match xo,yo with
+                        | Some x, Some y -> Some (merge_lists_signes x y) 
+                        | _ -> None) m1 m2 in
                       get_block_signes tail m pErr 
             )
       | While (cd, wbl) -> 
