@@ -1,6 +1,7 @@
 open Types
 
 (******************************************* Print functions **********************************************************)
+(* set of print functions for different types *)
 let print_op (o: op) : unit =
   match o with
   | Add -> print_string "+"  
@@ -33,6 +34,7 @@ let rec print_align (depth:int) : unit =
   | 0 -> ()
   | _ -> print_string "  "; print_align (depth - 1)
     
+(* apply the above functions to print a polish program *)
 let rec print_block (b: block) (d : int) : unit =    
     match b with
     | [] -> () 

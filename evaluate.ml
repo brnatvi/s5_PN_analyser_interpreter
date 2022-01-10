@@ -5,6 +5,7 @@ open Types
 exception WrongResult of string
 
 (******************************************* Evaluate functions *******************************************************)
+(* evaluate arithmetic operators *)
 let eval_bop (o:op) =
   match o with
   | Add -> (fun x y -> x + y)
@@ -13,6 +14,7 @@ let eval_bop (o:op) =
   | Div -> (fun x y -> x / y)
   | Mod -> (fun x y -> x mod y)
 
+(* evaluate expressions in their environment *)
 let rec evaluate_expression (ex:expr) (env: int NameTable.t) =
   match ex with
   | Num x -> x
@@ -21,6 +23,7 @@ let rec evaluate_expression (ex:expr) (env: int NameTable.t) =
     try (NameTable.find v env) with Not_found -> 
       raise (WrongResult (Printf.sprintf "Unknown variable %s" v))
 
+(* evaluate conditions on expressions in their environment *)
 let evaluate_condition (cm:comp) (ex1:expr) (ex2:expr) (env: int NameTable.t) : bool =
   match cm with
   | Eq -> (evaluate_expression ex1 env) =  (evaluate_expression ex2 env)(* = *)
@@ -30,6 +33,7 @@ let evaluate_condition (cm:comp) (ex1:expr) (ex2:expr) (env: int NameTable.t) : 
   | Gt -> (evaluate_expression ex1 env) >  (evaluate_expression ex2 env)(* Greater than, > *)
   | Ge -> (evaluate_expression ex1 env) >= (evaluate_expression ex2 env)(* Greater or equal, >= *)
 
+(* apply the above functions to evaluate a block *)
 let rec evaluate_block (bl:block) (env: int NameTable.t) : int NameTable.t =
   match bl with  
   | [] -> env

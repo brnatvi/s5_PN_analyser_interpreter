@@ -32,6 +32,7 @@ let eval_const_condition (cm:comp) (a1:int) (a2:int) : bool =
   | Gt -> a1 >  a2 (* Greater than, > *)
   | Ge -> a1 >= a2 (* Greater or equal, >= *)
 
+  (* apply the above functions to concrete expressions *)
 let rec simpl_block (oldB: block) (newB: block) (pos : int) : block * int =
   match oldB with  
   | [] -> (newB, pos)

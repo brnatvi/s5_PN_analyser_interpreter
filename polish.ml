@@ -32,10 +32,12 @@ let read_file (filename:string) : ((int * string) list) =
     | None   -> close_in chan;
     List.rev acc in aux 1 []
 
+(* produce a string list from a line by splitting on ' ' *)
 let split_line (line : int * string) : string list =
   let (x, y) = line in    
   let splited = String.split_on_char ' ' y in splited
 
+(* apply split_line function to lists of (int * string) *)
 let split_all_code (code : (int * string) list) : code_lines_t =
   let rec aux acc code =
     match code with

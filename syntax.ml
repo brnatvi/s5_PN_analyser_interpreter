@@ -6,6 +6,7 @@ exception FoundOpName of op
 exception WrongResult of string
 
 (******************************************  Syntax check up  *********************************************************)
+(* set of getters for various types *)
 let get_op (st : string) : op =
   match st with
   | "+" -> Add
