@@ -31,6 +31,7 @@ sign.ml : considère les signes possibles des variables. Nous avons implémenté
 une version où la valuation des variables exigée se fait dans "if"; 
 pour "while" on effectue juste la propagation des variables dans les blocs. 
 Nous avons introduit un nouveau type pour cette valuation: sign_bool qui peut prendre les valeurs Yes | No | May be.
+
 Nous avons ajouté des fichiers .mli pour six modules (prints.ml, syntax.ml, evaluate.ml, 
 vars.ml, simpl.ml, sign.ml) pour limiter
 l'accès à leur contenu des autres modules et rendre visible juste les fonctions nécessaires ailleurs.
