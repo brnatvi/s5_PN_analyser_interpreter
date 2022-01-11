@@ -1,5 +1,4 @@
 (executable
-(name polish)
- (modules evaluate prints types syntax polish vars simpl sign)
+ (name polish)
  (flags :standard -w -27-26-32-33 \ -short-paths)
 )
